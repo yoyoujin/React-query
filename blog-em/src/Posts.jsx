@@ -14,9 +14,18 @@ export function Posts() {
   const [selectedPost, setSelectedPost] = useState(null);
 
   // replace with useQuery
-  const { data } = useQuery(['posts'], fetchPosts);
+  const { data, isLoading, isError, error } = useQuery(['posts'], fetchPosts, { staleTime: 2000 });
+  // 블로그 게시물이 2초마다 만료되도록 설정함
 
-  if (!data) return <div />;
+  if (isLoading) return <h3>Loading...</h3>;
+  if (isError)
+    return (
+      <>
+        <h3>Oops, something went wrong</h3>
+        <p>{error.toString()}</p>
+      </>
+    );
+  // 리액트 쿼리는 기본적으로 3번 요청시도를 해본 후, 해당 데이터를 가져올 수 없다고 결정한다
 
   return (
     <>
