@@ -1,4 +1,5 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useEffect } from 'react';
 import { useState } from 'react';
 import { PostDetail } from './PostDetail';
 
@@ -15,12 +16,24 @@ export function Posts() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedPost, setSelectedPost] = useState(null);
 
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (currentPage < maxPostPage) {
+      const nextPage = currentPage + 1;
+      queryClient.prefetchQuery(['posts', nextPage], () =>
+        fetchPosts(nextPage)
+      );
+    }
+  }, [currentPage, queryClient]);
+
   // replace with useQuery
   const { data, isLoading, isError, error } = useQuery(
     ['posts', currentPage],
     () => fetchPosts(currentPage),
     {
       staleTime: 2000,
+      keepPreviousData: true,
     }
   );
   // 블로그 게시물이 2초마다 만료되도록 설정함
